@@ -4,10 +4,9 @@ import yt_dlp
 
 app = FastAPI()
 
-# إضافة حزمة CORS للسماح بالاتصالات من أي موقع/تطبيق
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # يتيح الاتصال من كل المصادر
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -23,6 +22,9 @@ def get_audio_url(video_id: str):
         'format': 'bestaudio/best',
         'quiet': True,
         'no_warnings': True,
+        'nocheckcertificate': True,
+        'geo_bypass': True,
+        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     }
     url = f"https://www.youtube.com/watch?v={video_id}"
     
@@ -30,6 +32,8 @@ def get_audio_url(video_id: str):
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
             audio_url = info.get('url')
+            if not audio_url:
+                raise HTTPException(status_code=404, detail="Audio URL not found")
             return {"status": "success", "audio_url": audio_url}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
