@@ -1,7 +1,17 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 import yt_dlp
 
 app = FastAPI()
+
+# إضافة حزمة CORS للسماح بالاتصالات من أي موقع/تطبيق
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # يتيح الاتصال من كل المصادر
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def home():
